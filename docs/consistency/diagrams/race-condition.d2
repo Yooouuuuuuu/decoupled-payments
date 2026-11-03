@@ -1,0 +1,20 @@
+# Race condition when the balance map is updated after the Kafka transaction (thesis Fig. 5.2).
+
+shape: sequence_diagram
+
+t0: Thread-0
+map: "Balance map\n(A = 100)"
+t1: Thread-1
+kafka: localBalance (backup)
+
+t0 -> t0: "receive from partition 1: A - 10"
+t1 -> t1: "receive from partition 2: A + 10"
+t0 -> t0: begin transaction 1
+t1 -> t1: begin transaction 2
+t0 -> map: read A = 100
+t1 -> map: read A = 100
+t0 -> kafka: write A = 90, commit transaction 1
+t1 -> kafka: write A = 110, commit transaction 2
+t0 -> map: update balance
+t1 -> map: update balance
+kafka -> kafka: "backup ends as 90 or 110, should be 100"

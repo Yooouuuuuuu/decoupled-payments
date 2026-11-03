@@ -1,0 +1,34 @@
+# Concurrent model (thesis Fig. 4.2).
+# Credits go straight to a Credits topic, read by a second validator thread.
+
+direction: right
+
+generators: Trade generators {shape: person}
+
+kafka: Kafka cluster {
+  trades: Trades {shape: queue}
+  blocks: Blocks {shape: queue}
+  credits: Credits {shape: queue}
+  orders: Orders {shape: queue}
+  localBalance: localBalance {shape: queue}
+}
+
+aggregators: Aggregators {shape: rectangle; style.multiple: true}
+
+validators: Validators {
+  style.multiple: true
+  blockThread: "thread: blocks"
+  creditThread: "thread: credits"
+  balances: "balance map\n(locked per Kafka tx)" {shape: cylinder}
+  blockThread -> balances
+  creditThread -> balances
+}
+
+generators -> kafka.trades: "(a) trade"
+kafka.trades -> aggregators: "(b)"
+aggregators -> kafka.blocks: "(c) blocks by sender bank"
+kafka.blocks -> validators.blockThread: "(d) validate"
+validators.blockThread -> kafka.credits: "(e) credit to receiver bank's partition" {style.stroke-dash: 3}
+kafka.credits -> validators.creditThread: "(e) apply credit"
+validators -> kafka.orders: "(f) rejected / accepted / completed"
+validators -> kafka.localBalance: "(g) balance backup"

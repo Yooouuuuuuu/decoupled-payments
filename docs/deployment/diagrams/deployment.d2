@@ -1,0 +1,39 @@
+# Default local deployment: 3 sites on one Docker host.
+# Each site = one bank's infrastructure (thesis §4.1.1): a Kafka node + an aggregator + a validator.
+# Kafka nodes run in combined mode (broker + KRaft controller), forming a 3-voter quorum.
+
+direction: right
+
+host: Docker host (one Compose network) {
+  site1: "site 1 (bank A)" {
+    kafka: "kafka-1\nbroker + controller" {shape: cylinder}
+    agg: aggregator
+    val: validator
+  }
+  site2: "site 2 (bank B)" {
+    kafka: "kafka-2\nbroker + controller" {shape: cylinder}
+    agg: aggregator
+    val: validator
+  }
+  site3: "site 3 (bank C)" {
+    kafka: "kafka-3\nbroker + controller" {shape: cylinder}
+    agg: aggregator
+    val: validator
+  }
+
+  quorum: "KRaft quorum (Raft)" {shape: oval}
+  site1.kafka <-> quorum
+  site2.kafka <-> quorum
+  site3.kafka <-> quorum
+
+  generator: trade generator
+}
+
+generator_note: |md
+  Processors connect to **all** brokers (bootstrap list);
+  partition leaders are spread across nodes.
+| {shape: text}
+
+host.generator -> host.site1.kafka: trades
+host.generator -> host.site2.kafka
+host.generator -> host.site3.kafka

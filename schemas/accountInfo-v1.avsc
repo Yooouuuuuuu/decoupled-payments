@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "AccountInfo",
+  "namespace": "my.avroSchema",
+  "fields": [
+    {"name":"bank", "type":"string"},
+    {"name":"bankPartition", "type":"int"},
+    {
+      "name":"Accounts",
+      "type":{
+        "type": "array",
+        "items":{
+          "name":"Account",
+          "type":"record",
+          "fields":[
+            {"name":"AccountNo", "type":"string"}
+          ]
+        }
+      }
+    }
+  ]
+}
+

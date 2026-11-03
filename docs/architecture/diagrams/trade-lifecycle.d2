@@ -1,0 +1,32 @@
+# Lifecycle of a trade: Alice (bank A) sends $10 to Bob (bank B).
+# Concurrent model shown (credits via the Credits topic). Thesis Fig. 3.2.
+
+direction: right
+
+alice: Alice {shape: person}
+
+kafka: Kafka {
+  trades: Trades {shape: queue}
+  blocks: Blocks {
+    a: "partition: bank A" {shape: queue}
+    b: "partition: bank B" {shape: queue}
+  }
+  credits: Credits {
+    a: "partition: bank A" {shape: queue}
+    b: "partition: bank B" {shape: queue}
+  }
+  orders: Orders {shape: queue}
+}
+
+aggregator: Aggregator
+validatorA: "Validator\n(owns bank A)"
+validatorB: "Validator\n(owns bank B)"
+
+alice -> kafka.trades: '(a) A → B, $10'
+kafka.trades -> aggregator
+aggregator -> kafka.blocks.a: "(b) block of bank-A trades"
+kafka.blocks.a -> validatorA
+validatorA -> kafka.orders: "(c) accepted / rejected"
+validatorA -> kafka.credits.b: '(c) credit +$10 (if accepted)'
+kafka.credits.b -> validatorB
+validatorB -> kafka.orders: "(d) completed"

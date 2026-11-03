@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "name": "Block",
+  "namespace": "my.avroSchema",
+  "fields": [
+    {
+      "name":"Trades",
+      "type":{
+        "type": "array",
+        "items":{
+          "name":"Trade",
+          "type":"record",
+          "fields":[
+            {"name":"serialNumber", "type":"long"},
+            {"name":"outbank", "type":"string"},
+            {"name":"outAccount", "type":"string"},
+            {"name":"inbank", "type":"string"},
+            {"name":"inAccount", "type":"string"},
+            {"name":"outbankPartition", "type":"int"},
+            {"name":"inbankPartition", "type":"int"},
+            {"name":"amount", "type":"long"},
+            {"name":"category", "type":"int"},
+            {"name":"timestamp1", "type":"long"},
+            {"name":"timestamp2", "type":"long"}
+          ]
+        }
+      }
+    }
+  ]
+}
+

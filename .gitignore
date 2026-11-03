@@ -1,0 +1,24 @@
+# Original thesis code, kept locally as reference only. Never commit.
+legacy/
+
+# Build output
+target/
+*.class
+/go/bin/
+
+# Benchmark output
+/results/
+
+# Local config / secrets
+.env
+*.local
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local planning notes and decision records (not part of the published docs)
+docs/roadmap/
+docs/decisions/

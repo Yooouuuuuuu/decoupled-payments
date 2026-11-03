@@ -1,0 +1,37 @@
+# Blocks, partitioning and consumer groups (thesis Fig. 3.3).
+# Each bank's blocks go to its own partition; one validator per partition.
+
+direction: down
+
+blocks: blocks topic {
+  grid-columns: 3
+  p0: "Partition 0\n(all records from bank A)" {
+    grid-columns: 1
+    b1: Block 1 of bank A
+    b2: Block 2 of bank A
+    b3: Block 3 of bank A
+  }
+  p1: "Partition 1\n(all records from bank B)" {
+    grid-columns: 1
+    b1: Block 1 of bank B
+    b2: Block 2 of bank B
+    b3: Block 3 of bank B
+  }
+  p2: "Partition 2\n(all records from bank C)" {
+    grid-columns: 1
+    b1: Block 1 of bank C
+    b2: Block 2 of bank C
+    b3: Block 3 of bank C
+  }
+}
+
+group: Consumer group of validators {
+  grid-columns: 3
+  va: "Validator\n(owns bank A)"
+  vb: "Validator\n(owns bank B)"
+  vc: "Validator\n(owns bank C)"
+}
+
+blocks.p0 -> group.va
+blocks.p1 -> group.vb
+blocks.p2 -> group.vc

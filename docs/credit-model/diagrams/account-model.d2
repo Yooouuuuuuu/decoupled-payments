@@ -1,0 +1,15 @@
+# Account model (thesis Fig. 2.1): Alice sends $10 to Bob.
+
+direction: right
+
+before: Before {
+  alice: "Alice's account\n\$100"
+  bob: "Bob's account\n\$100"
+}
+
+after: After {
+  alice: "Alice's account\n\$90"
+  bob: "Bob's account\n\$110"
+}
+
+before -> after: 'Alice sends $10 to Bob\n(both accounts updated atomically)'

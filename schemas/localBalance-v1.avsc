@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "LocalBalance",
+  "namespace": "my.avroSchema",
+  "fields": [
+    {
+      "name":"Balance",
+      "type":"long"
+    }
+  ]
+}
+

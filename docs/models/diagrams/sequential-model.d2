@@ -1,0 +1,24 @@
+# Sequential model (thesis Fig. 4.1).
+# Credits are sent back to Trades and re-aggregated into Blocks.
+
+direction: right
+
+generators: Trade generators {shape: person}
+
+kafka: Kafka cluster {
+  trades: Trades {shape: queue}
+  blocks: Blocks {shape: queue}
+  orders: Orders {shape: queue}
+  localBalance: localBalance {shape: queue}
+}
+
+aggregators: Aggregators {shape: rectangle; style.multiple: true}
+validators: Validators {shape: rectangle; style.multiple: true}
+
+generators -> kafka.trades: "(a) trade"
+kafka.trades -> aggregators: "(b)"
+aggregators -> kafka.blocks: "(c) blocks by bank"
+kafka.blocks -> validators: "(d) trades + credits"
+validators -> kafka.trades: "(e) credit (category = receive)" {style.stroke-dash: 3}
+validators -> kafka.orders: "(f) rejected / accepted / completed"
+validators -> kafka.localBalance: "(g) balance backup"

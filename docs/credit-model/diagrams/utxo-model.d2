@@ -1,0 +1,31 @@
+# UTXO model (thesis Fig. 2.2): Alice sends $10 to Bob.
+# Alice spends her 20 UTXO: 10 goes to Bob, 10 comes back to her as change.
+
+direction: right
+
+before: Before {
+  alice: "Alice's UTXO set" {
+    u1: "50"
+    u2: "20"
+    u3: "30"
+  }
+  bob: "Bob's UTXO set" {
+    u1: "60"
+    u2: "40"
+  }
+}
+
+after: After {
+  alice: "Alice's UTXO set" {
+    u1: "50"
+    u2: "10 (change)"
+    u3: "30"
+  }
+  bob: "Bob's UTXO set" {
+    u1: "60"
+    u2: "10 (new)"
+    u3: "40"
+  }
+}
+
+before -> after: 'Alice sends $10 to Bob\n(spend 20, create 10 + 10)'

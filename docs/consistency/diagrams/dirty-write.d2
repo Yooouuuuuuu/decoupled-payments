@@ -1,0 +1,20 @@
+# Dirty write when the balance map is updated inside a Kafka transaction (thesis Fig. 5.1).
+
+shape: sequence_diagram
+
+t0: Thread-0
+map: "Balance map\n(A = 100)"
+t1: Thread-1
+kafka: localBalance (backup)
+
+t0 -> t0: "receive from partition 1: A - 10"
+t0 -> t0: begin transaction 1
+t0 -> map: set A = 90
+t1 -> t1: "receive from partition 2: A + 10"
+t1 -> t1: begin transaction 2
+t1 -> map: "read A (90), set A = 100"
+t1 -> kafka: commit transaction 2 (A = 100)
+t0 -> t0: abort transaction 1 (e.g. ack timeout)
+t0 -> kafka: "rollback by polling backup: A = 100"
+kafka -> kafka: "backup 100 already includes the aborted -10"
+t0 -> map: "the -10 is reprocessed: A = 90 (correct: 100)"
