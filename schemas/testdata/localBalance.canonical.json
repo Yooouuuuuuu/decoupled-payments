@@ -1,0 +1,1 @@
+{"name":"io.github.yooouuuuuuu.dp.avro.LocalBalance","type":"record","fields":[{"name":"balance","type":"long"}]}

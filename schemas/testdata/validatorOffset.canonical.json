@@ -1,0 +1,1 @@
+{"name":"io.github.yooouuuuuuu.dp.avro.ValidatorOffset","type":"record","fields":[{"name":"topic","type":"string"},{"name":"partition","type":"int"},{"name":"offset","type":"long"}]}

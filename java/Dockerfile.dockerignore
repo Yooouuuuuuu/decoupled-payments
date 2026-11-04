@@ -1,0 +1,8 @@
+# The build context is the repository root: send only what the Java build uses.
+*
+!schemas/
+!config/default.yaml
+!java/mvnw
+!java/pom.xml
+!java/.mvn/
+!java/src/

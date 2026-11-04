@@ -11,7 +11,7 @@ An overview of the system designed in the [thesis](../thesis/). Each part has it
 | Messages and schemas | [data-model](../data-model/) |
 | How the cluster runs locally | [deployment](../deployment/) |
 
-Both implementations (Java, and Go later) must follow these documents. If code and docs disagree, fix one of them.
+Both implementations, in [`java/`](../../java/) and [`go/`](../../go/), follow these documents and can be mixed in one cluster. How to run them is in [running](../running/). If code and docs disagree, fix one of them.
 
 ## The problem
 
@@ -28,21 +28,24 @@ Processing payments in parallel risks **dirty writes**. If two processors both r
 | Topic          | Contents                                                           |
 |----------------|--------------------------------------------------------------------|
 | `trades`       | Incoming trades (and, in the Sequential model, credits sent back)  |
-| `blocks`       | Batches of trades from the same bank                               |
+| `blocks`       | Batches of trades for the same bank                                |
 | `credits`      | Credit records waiting to be applied (Concurrent model only)       |
 | `orders`       | Results: accepted/rejected after validation, then "completed" after credit |
 | `localBalance` | Latest balance per account, used to rebuild state after a failure or rebalance |
-| `accountInfo`  | Banks, their partitions and accounts, written at init              |
+| `validatorOffsets` | How far each bank's validator has read `blocks` and `credits`, written together with its results |
+| `accountInfo`  | Banks, their partitions and accounts, and the model the cluster runs; written by `init` |
 
 How each topic is partitioned is in [partitioning](../partitioning/#topic-partitioning).
 
 ## Processors
 
 - **Trade generator:** produces trades into `trades`. In practice these come from banks' servers, not individual account holders.
-- **Aggregator** (layer 1): consumes `trades`, groups them by sender bank, and emits a block to `blocks` when it reaches the **block size** or after a **timeout**. Blocks cut down the number of Kafka round trips.
+- **Aggregator** (layer 1): consumes `trades`, groups new trades by sender bank and, in the Sequential model, credits by receiver bank. It emits a block to that bank's partition of `blocks` when the block reaches the **block size** or after a **timeout**. A block also stays under 512 KiB, so that it, and every record a validator makes from it, fits within Kafka's 1 MiB message limit. Blocks cut down the number of Kafka round trips.
 - **Validator** (layer 2): owns a set of banks and keeps their balances in memory. It validates trades, applies credits, writes results to `orders`, and backs up balances to `localBalance`, all inside Kafka transactions.
 
 Processors never talk to each other directly. All communication goes through Kafka, which keeps Kafka's consistency guarantees intact.
+
+Two helper roles complete the system: **`init`** creates the topics, the banks and their starting balances, and **`report`** reads the results back and checks them (every trade validated once, every credit applied once, no money created or lost). See [running](../running/).
 
 ## Lifecycle of a trade
 
@@ -65,7 +68,7 @@ Example: Alice (bank A) sends $10 to Bob (bank B).
 | Trade         | A payment from one account to another. The thesis avoids "transaction" for this. |
 | Transaction   | Only ever a **Kafka** transaction.                                            |
 | Credit        | The receiving half of an accepted trade, waiting to be added to a balance.    |
-| Block         | A batch of trades from one bank, made by an aggregator.                       |
+| Block         | A batch of trades for one bank, made by an aggregator: at most the block size, and at most 512 KiB. |
 | Order         | A result record: rejected, accepted, or completed.                            |
 | Bank          | A group of accounts owned by one partition, and so by one validator.          |
 | Site          | One bank's infrastructure: a Kafka node, an aggregator, a validator.          |

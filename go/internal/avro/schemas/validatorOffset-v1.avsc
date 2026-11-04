@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "ValidatorOffset",
+  "namespace": "io.github.yooouuuuuuu.dp.avro",
+  "doc": "How far a bank's validator has read one partition of blocks or credits (the record key is the topic name). Written in the same Kafka transaction as the validator's results, so it always matches localBalance.",
+  "fields": [
+    {"name": "topic", "type": "string", "doc": "blocks or credits."},
+    {"name": "partition", "type": "int", "doc": "The bank's partition."},
+    {"name": "offset", "type": "long", "doc": "Next offset to read."}
+  ]
+}

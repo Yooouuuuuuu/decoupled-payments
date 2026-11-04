@@ -39,17 +39,21 @@ After validation, the receiver's attributes take over the partitioning role. The
 
 | Topic | Partitions | Key / routing |
 |---|---|---|
-| `trades` | One per aggregator | Default (round-robin). Trades arrive unsorted, and any aggregator may take any trade. |
+| `trades` | One per aggregator | No key (Kafka spreads records over partitions). Trades arrive unsorted, and any aggregator may take any trade. |
 | `blocks` | One per bank (= validators) | Sender bank for new trades; receiver bank for credits (Sequential model) |
-| `credits` | Same as `blocks` | Receiver bank. Validators must be assigned the **same banks** on `blocks` and `credits`. |
+| `credits` | Same as `blocks` | Receiver bank. Validators are assigned the **same banks** on `blocks` and `credits`. |
 | `orders` | Same as `blocks` (optional) | Bank. Lets validators write results in parallel; a single partition would also work. |
-| `localBalance` | Same as `blocks` | Bank, so a validator can rebuild exactly the balances it owns |
+| `localBalance` | Same as `blocks` (compacted) | Bank, so a validator can rebuild exactly the balances it owns. The record key is the account. |
+| `validatorOffsets` | Same as `blocks` (compacted) | Bank. How far the bank's validator has read `blocks` and `credits` (key: the topic name). |
+| `accountInfo` | 1 | Written once by `init`, read by every role at startup |
 
 Aggregators aren't tied to banks: one aggregator can build blocks for several banks within the same timeout window.
 
 ## Rebalancing and recovery
 
-When a validator fails, or a new one joins, the consumer group **reassigns partitions**. The validator that receives a bank rebuilds that bank's balances from `localBalance` before processing. In the Concurrent model, its `blocks` and `credits` assignments must move together. See [consistency](../consistency/#recovery).
+When a validator fails, or a new one joins, the consumer group **reassigns partitions**. Only `blocks` is assigned by the group. In the Concurrent model, the validator's `credits` consumer follows whatever `blocks` partitions it holds, so a bank's two sides always move together.
+
+The validator that receives a bank first fences the bank's previous owner, then rebuilds that bank's balances from `localBalance` and continues from the position recorded in `validatorOffsets`. See [consistency](../consistency/#recovery).
 
 ## Ordering consequences
 

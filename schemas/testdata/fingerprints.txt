@@ -1,0 +1,4 @@
+block io.github.yooouuuuuuu.dp.avro.Block 0x82920154a39295d2
+localBalance io.github.yooouuuuuuu.dp.avro.LocalBalance 0xaa74acc6c2e48d77
+accountInfo io.github.yooouuuuuuu.dp.avro.AccountInfo 0x4b073bdae0d38c11
+validatorOffset io.github.yooouuuuuuu.dp.avro.ValidatorOffset 0xa7c976506f6b10f0

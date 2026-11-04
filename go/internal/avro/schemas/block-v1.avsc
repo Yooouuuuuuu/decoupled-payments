@@ -1,0 +1,40 @@
+{
+  "type": "record",
+  "name": "Block",
+  "namespace": "io.github.yooouuuuuuu.dp.avro",
+  "doc": "A batch of trades. Every record on the trades, blocks, credits and orders topics is a Block; a single trade is a block of one.",
+  "fields": [
+    {
+      "name": "trades",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "Trade",
+          "doc": "One payment from outAccount (at bank outbank) to inAccount (at bank inbank).",
+          "fields": [
+            {"name": "serialNumber", "type": "long", "doc": "Unique trade ID: generator run ID * 2^32 + sequence number."},
+            {"name": "outbank", "type": "string", "doc": "Sender's bank."},
+            {"name": "outAccount", "type": "string", "doc": "Sender's account."},
+            {"name": "inbank", "type": "string", "doc": "Receiver's bank."},
+            {"name": "inAccount", "type": "string", "doc": "Receiver's account."},
+            {"name": "outbankPartition", "type": "int", "doc": "Partition of the sender's bank: where the trade is validated."},
+            {"name": "inbankPartition", "type": "int", "doc": "Partition of the receiver's bank: where the credit is applied."},
+            {"name": "amount", "type": "long", "doc": "Amount in the smallest currency unit, always > 0."},
+            {
+              "name": "category",
+              "type": {
+                "type": "enum",
+                "name": "Category",
+                "doc": "SEND: a new trade, or (on orders) a validated one. RECEIVE: a credit, or (on orders) a completed trade. REJECTED: insufficient funds.",
+                "symbols": ["SEND", "RECEIVE", "REJECTED"]
+              }
+            },
+            {"name": "timestamp1", "type": "long", "doc": "When the trade was created, in ms since the Unix epoch."},
+            {"name": "timestamp2", "type": "long", "doc": "When the trade was validated, in ms since the Unix epoch; 0 before validation."}
+          ]
+        }
+      }
+    }
+  ]
+}

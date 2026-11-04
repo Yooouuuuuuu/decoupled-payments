@@ -1,0 +1,10 @@
+# Text files keep LF line endings in every checkout, also on Windows: the shell scripts and
+# the Maven wrapper run inside Linux containers.
+* text=auto eol=lf
+*.cmd text eol=crlf
+
+# Binary files: never convert them.
+*.bin binary
+*.pdf binary
+*.png binary
+*.jar binary

@@ -1,0 +1,63 @@
+# Default configuration of every role: init, generator, aggregator, validator, report.
+# The Java and Go implementations both read this file and accept exactly the same settings.
+#
+# Any setting can be overridden. Later sources win:
+#   1. this file
+#   2. a YAML file given with --config=<file> (or the DP_CONFIG environment variable)
+#   3. environment variables: DP_ + the key in upper snake case,
+#      e.g. aggregator.blockSize -> DP_AGGREGATOR_BLOCK_SIZE
+#   4. command-line flags: --aggregator.blockSize=500, or --blockSize=500 when running
+#      the aggregator role (a flag that isn't a full key is looked up in the role's section)
+
+# The model the cluster runs (see docs/models). init records both settings in the
+# accountInfo topic, and aggregators and validators refuse to start if theirs differ.
+model: concurrent           # sequential | concurrent
+kafkaTransactions: true     # false = run without Kafka transactions: not consistent, only for measuring their cost
+
+# This process's site. Each running aggregator and validator needs its own stable site ID:
+# it identifies the process in its consumer group, and names the aggregator's transactional.id.
+siteId: 1
+
+logLevel: info              # debug | info | warn | error
+statsIntervalMs: 5000       # how often each role logs its progress
+
+kafka:
+  bootstrapServers: localhost:9092
+  sessionTimeoutMs: 10000   # how soon a dead aggregator or validator is noticed and its partitions move
+  transactionTimeoutMs: 60000   # how long an unfinished Kafka transaction of a crashed process can hold up
+                                # readers before the broker aborts it: it only delays trades, never loses them
+  maxPartitionFetchBytes: 1048576   # the thesis's "max fetch bytes"
+
+topics:
+  replicationFactor: 1
+  tradesPartitions: 3       # partitions of trades: one per aggregator
+
+bank:
+  count: 3                  # banks = partitions of blocks, credits, orders, localBalance and validatorOffsets; at most 10000
+  accountsPerBank: 100      # at most 50000
+  initialBalance: 10000     # starting balance of every account, in the smallest currency unit
+
+init:
+  reset: false              # true = delete all topics and consumer groups first (deletes all data)
+
+generator:
+  rps: 1000                 # trades per second
+  trades: 10000             # how many trades to send, at most 4294967295; 0 = until stopped
+  distribution: uniform     # uniform | zipf: how sending and receiving accounts are picked
+  zipfExponent: 1.0         # only for zipf, 0 to 5: higher = a few accounts trade much more than the rest
+  minAmount: 1
+  maxAmount: 100
+  seed: 42                  # random seed for accounts and amounts
+
+aggregator:
+  blockSize: 500            # max trades per block; a block is also kept under 512 KiB
+  blockTimeoutMs: 1000      # emit partial blocks at the latest this long after their first trade (the thesis used 10 s)
+  maxPollRecords: 2000
+
+validator:
+  blocksPerTransaction: 1   # max blocks per Kafka transaction (the thesis used 1)
+  creditsPerTransaction: 500  # max credit records per Kafka transaction (Concurrent model)
+
+report:
+  timeoutMs: 60000          # how long to wait for trades still in flight
+  json: false               # also print the result as one line of JSON

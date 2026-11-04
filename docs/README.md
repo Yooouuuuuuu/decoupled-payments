@@ -12,8 +12,9 @@ Each topic has its own folder. A folder holds a `README.md` (the main document) 
 | [`consistency/`](consistency/)      | Exactly-once processing, eventual consistency, ordering, recovery, the shared balance map |
 | [`data-model/`](data-model/)        | Messages, schemas and serialization                                     |
 | [`deployment/`](deployment/)        | The local multi-broker cluster: sites, KRaft, defaults                  |
+| [`running/`](running/)              | How to run it: the roles, stopping and exit statuses, Docker Compose, configuration, the report's checks |
 
-Suggested reading order: architecture → credit-model → partitioning → models → consistency.
+Suggested reading order: architecture → credit-model → partitioning → models → consistency. To just run it, go to [running](running/).
 
 ## Conventions
 

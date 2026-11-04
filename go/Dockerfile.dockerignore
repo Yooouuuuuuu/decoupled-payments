@@ -1,0 +1,7 @@
+# The build context is the repository root. The image needs go/, and the
+# tests also need the originals of the embedded schemas and defaults.
+*
+!go/
+go/bin/
+!schemas/
+!config/default.yaml

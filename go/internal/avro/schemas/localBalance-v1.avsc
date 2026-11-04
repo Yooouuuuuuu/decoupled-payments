@@ -1,0 +1,9 @@
+{
+  "type": "record",
+  "name": "LocalBalance",
+  "namespace": "io.github.yooouuuuuuu.dp.avro",
+  "doc": "Latest balance of one account (the record key). Written by the account's validator in the same Kafka transaction as the change.",
+  "fields": [
+    {"name": "balance", "type": "long", "doc": "Balance in the smallest currency unit."}
+  ]
+}

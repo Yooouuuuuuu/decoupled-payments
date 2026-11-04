@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "AccountInfo",
+  "namespace": "io.github.yooouuuuuuu.dp.avro",
+  "doc": "One bank and its accounts (the record key is the bank). Written once by init, together with the model the cluster runs.",
+  "fields": [
+    {"name": "bank", "type": "string", "doc": "Bank ID, e.g. bank0."},
+    {"name": "bankPartition", "type": "int", "doc": "The bank's partition of blocks, credits, orders, localBalance and validatorOffsets."},
+    {"name": "accounts", "type": {"type": "array", "items": "string"}, "doc": "Account IDs of this bank."},
+    {"name": "initialBalance", "type": "long", "doc": "Starting balance of every account."},
+    {
+      "name": "model",
+      "type": {
+        "type": "enum",
+        "name": "Model",
+        "doc": "How credits travel: SEQUENTIAL (back through trades and blocks) or CONCURRENT (through the credits topic).",
+        "symbols": ["SEQUENTIAL", "CONCURRENT"]
+      }
+    },
+    {"name": "kafkaTransactions", "type": "boolean", "doc": "false = the model runs without Kafka transactions (not consistent; only for measuring their cost)."}
+  ]
+}

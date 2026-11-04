@@ -27,6 +27,8 @@ Two models are compared:
 
 Hardware: two laptops (i7-12700H), plus two i7-10510U machines for the scalability tests.
 
+These results come from the thesis's original implementation, which isn't part of this repository. The code here is a rewrite of the same design (see [About this code](../../README.md#about-this-code)).
+
 Details are in [`../architecture/`](../architecture/).
 
 ## Citation

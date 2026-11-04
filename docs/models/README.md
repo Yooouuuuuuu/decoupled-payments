@@ -11,6 +11,12 @@ The thesis builds two models on the same foundation ([architecture](../architect
 | Peak TPS (LAN, thesis) | ~230k | ~200k |
 | Under overload / network delay | Degrades faster | More stable; >2× Sequential's TPS at 100 ms delay |
 
+## Choosing a model
+
+The model is a cluster-wide setting: `model: sequential | concurrent` and `kafkaTransactions: true | false` in the [configuration](../running/#configuration). `init` records both in `accountInfo`, and aggregators and validators refuse to start if theirs differ. With Docker Compose, set `MODEL` and `KAFKA_TRANSACTIONS` (see [running](../running/)).
+
+In the code, both models share everything except where a validator sends an accepted trade's credit: back to `trades` (Sequential), or to `credits` with a second consumer thread (Concurrent). The aggregator is the same for both: it routes a new trade by its sender's bank and a credit by its receiver's bank.
+
 ## Sequential model
 
 ![Sequential model](diagrams/sequential-model.svg)
@@ -41,7 +47,7 @@ The thesis first tried a single thread that switched between the two topics ever
 
 ## Concurrent w/o Tx
 
-The Concurrent model with Kafka transactions turned off. It **isn't consistent** and exists only to measure what Kafka transactions cost:
+The Concurrent model with Kafka transactions turned off (`kafkaTransactions: false`). Producers are still idempotent, and each step writes its results before recording how far it has read, so a crash causes duplicates but never loses a trade. It **isn't consistent** and exists only to measure what Kafka transactions cost:
 - On a LAN, it was **not faster**: Kafka transactions add no significant overhead with small network delay.
 - At 100 ms simulated delay, transactions cost noticeably more, as expected from a two-phase commit that needs extra round trips.
 
